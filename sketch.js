@@ -1,3 +1,11 @@
+//Random todos
+
+//Figure out how to send new Arduino data to this code
+//Talk to Aaron about re-edit (again) files to be mmm instead of mah
+//Rerecord vah and eng to become ing
+//Change "code" variable
+
+
 //VARIABLES FOR SERIAL IN P5 SKETCH
 let serial; // variable to hold an instance of the serialport library
 let portName = '/dev/cu.usbmodem120'; // fill in your serial port name here
@@ -5,47 +13,74 @@ let portName = '/dev/cu.usbmodem120'; // fill in your serial port name here
 
 //VARIABLES FOR WORDS AND MP3S ASSOCIATED WITH SOUNDS
 
-//MOUTH SENSOR 0 = MOUTH OPEN = LOW VOWELS
-let mouth0Sensor = ['Ahh', 'Aohh', 'Aye', 'Ehh', 'Ooh', 'Uhh', 'Hah', 'Jyah'];
-let mouth0Index = 0;
-let mouth0Sounds = [];
+//? HOW DO I SEPARATE FIRST TWO INTO DIFFERENT READINGS
+//create variables for sensors to store data in
+let mouth0Sensor;
+let mouth1Sensor;
+let openSensor;
+let halfwaySensor;
 
 
-//MOUTH SENSOR 1 = MOUTH HALF-WAY OPEN = HIGH VOWELS
-let mouth1Sensor = [''];
-let mouth1Index = 0;
-let mouth1Sounds = [];
+//specify separate data variables if mouth1 sensor is greater or lesser than X
+//Is this the best way to do it? Syntax?
+if (mouth1Sensor > x); {
+  mouth1Sensor = 1;
+  mouth1Sensor = openSensor;
+}
+else (mouth1Sensor < x); {
+  mouth1Sensor = 1;
+  mouth1Sensor = halfwaySensor;
+}
 
+//FIRST INTERACTION = LOW VOWELS
+//0) PRESS BOTTOM OF MOUTH SENSOR 0
+//1) WITH MOUTH SENSOR 1 OPEN ALL THE WAY
 
-let teeth1Sensor = [];
-let tongue2Sensor = [];
+//If mouth0sensor is true, and mouthOpen is true, store that in a new variable
+// ? How to write this syntax?
+if (mouth0Sensor && openSensor); {
+  mouthOpenSensors = ???True;
+}
+let mouthOpenSensors = ['aeh', 'ahh', 'oahhh', 'uhh', 'hah', 'yah'];
+let mouthOpenIndex = 0;
+let mouthOpenSounds = [];
 
-//MOUTH SENSOR 2 = MOUTH CLOSED ALL THE WAY = CONSONANTS
-let mouth2Sensor = [''];
-let mouth2Index = 0;
-let mouth2Sounds = [];
+//SECOND INTERACTION = HIGH VOWELS
+//0) PRESS BOTTOM OF MOUTH SENSOR 0
+//1) WITH MOUTH SENSOR 1 HALF-WAY OPEN
+if (mouth0Sensor && halfwaySensor); {
+  mouthHalfwaySensors = ???True;
+}
+let mouthHalfwaySensors = ['ehh', 'ee', 'uouhh', 'er', 'aiy', 'aehh', 'ooo'];
+let mouthHalfwayIndex = 0;
+let mouthHalfwaySounds = [];
 
-let mouth0Teeth1Sensors = ['Fah', 'Vah'];
-let mouth0Teeth1Index = 0;
-let mouth0Teeth1Sounds = [];
+//THIRD INTERACTION = CONSONANTS
+//1 AND 2) WHEN MOUTH SENSORS 1 AND 2 ARE BOTH PRESSED
+//TO CLOSE THE LIPS OF THE MOUTH
+let mouthClosedSensors = ['mah', 'pah', 'bah', 'wah'];
+let mouthClosedIndex = 0;
+let mouthClosedSounds = [];
 
 //TEETH SENSOR 3 = PINCHING TOP OF TEETH = CONSONANTS
-let mouth0Tongue2Sensors = ['Dah', 'Nah', 'Tah', 'Kah'];
-let mouth0Tongue2Index = 0;
-let mouth0Tongue2Sounds = [];
+let teeth3Sensors = ['vah', 'fah', 'rah'];
+let teeth3Index = 0;
+let teeth3Sounds = [];
 
 //TONGUE SENSOR 4 = PRESSING TIP OF TONGUE = CONSONANTS
-
-let teeth1Tongue2Sensors = ['Lah', 'Sah', 'Zah'];
-let teeth1Tongue2Index = 0;
-let teeth1Tongue2Sounds = [];
-
+let tongue4Sensors = ['sah', 'zah','tha','lah'];
+let tongue4Index = 0;
+let tongue4Sounds = [];
 
 //TONGUE SENSOR 5 = PRESSING MIDDLE OF TONGUE = CONSONANTS
-
+let tongue5Sensors = ['nah', 'cha','tah','sha', 'zjyah', 'dah', 'juh'];
+let tongue5Index = 0;
+let tongue5Sounds = [];
 
 //TONGUE SENSOR 6 = PRESSING BACK OF TONGUE = CONSONANTS
-
+let tongue6Sensors = ['kah', 'gah', 'ing'];
+let tongue6Index = 0;
+let tongue6Sounds = [];
 
 
 //VARIABLES FOR BUILDING WORDS
@@ -54,15 +89,21 @@ let word = [];
 let syllableArray;
 
 
-//VARIABLES FOR RECEIVING SERIAL DATA
+//VARIABLES FOR RECEIVING SERIAL
 var code;
+
+//SEE BELOW FOR OLD CODE BASED ON OLD sensors
+//NEW CODES
 var arduinoToCodes = {
-  '1,0,0': 65,
-  '0,1,0': 83,
-  '0,0,1': 68,
-  '1,1,0': 75,
-  '0,1,1': 76,
-  '1,0,1': 186,
+  '1,0,0,0,0,0': 65,
+  //How do I receive and parse the same data for open and halfway open mouth?
+  '1,1,0,0,0,0': 83,
+  '1,1,0,0,0,0': 68,
+  //
+  '0,0,1,0,0,0': 70,
+  '0,0,0,1,0,0': 71,
+  '0,0,0,0,1,0': 72,
+  '0,0,0,0,0,1': 74,
 }
 var previousData;
 var scheduled;
@@ -73,20 +114,26 @@ var previousSum = 0;
 
 //PRELOAD MP3S USING ARRAYS
 function preload() {
-  for (let i = 0; i < mouth0Sensor.length; i++) {
-    mouth0Sounds.push(loadSound("soundfiles/" + mouth0Sensor[i] + ".mp3"));
+  for (let i = 0; i < mouthOpenSensors.length; i++) {
+    mouthOpenSounds.push(loadSound("soundfiles/" + mouthOpenSensors[i] + ".mp3"));
   }
-  for (let j = 0; j < mouth0Teeth1Sensors.length; j++) {
-    mouth0Teeth1Sounds.push(loadSound("soundfiles/" + mouth0Teeth1Sensors[j] + ".mp3"));
+  for (let j = 0; j < mouthHalfwaySensors.length; j++) {
+    mouthHalfwaySounds.push(loadSound("soundfiles/" + mouthHalfwaySensors[j] + ".mp3"));
   }
-  for (let k = 0; k < mouth0Tongue2Sensors.length; k++) {
-    mouth0Tongue2Sounds.push(loadSound("soundfiles/" + mouth0Tongue2Sensors[k] + ".mp3"));
+  for (let k = 0; k < mouthClosedSensors.length; k++) {
+    mouthClosedSounds.push(loadSound("soundfiles/" + mouthClosedSensors[k] + ".mp3"));
   }
-  for (let m = 0; m < teeth1Tongue2Sensors.length; m++) {
-    teeth1Tongue2Sounds.push(loadSound("soundfiles/" + teeth1Tongue2Sensors[m] + ".mp3"));
+  for (let m = 0; m < teeth3Sensors.length; m++) {
+    teeth3SensorsSounds.push(loadSound("soundfiles/" + teeth3Sensors[m] + ".mp3"));
   }
-  for (let n = 0; n < mouth0Tongue2Sensors.length; n++) {
-    mouth0Tongue2Sounds.push(loadSound("soundfiles/" + mouth0Tongue2Sensors[n] + ".mp3"));
+  for (let n = 0; n < tongue4Sensors.length; n++) {
+    tongue4Sounds.push(loadSound("soundfiles/" + tongue4Sensors[n] + ".mp3"));
+  }
+  for (let o = 0; o < tongue5Sensors.length; o++) {
+    tongue5Sounds.push(loadSound("soundfiles/" + tongue5Sensors[o] + ".mp3"));
+  }
+  for (let p = 0; p < tongue6Sensors.length; p++) {
+    tongue6Sounds.push(loadSound("soundfiles/" + tongue6Sensors[p] + ".mp3"));
   }
 }
 
@@ -134,7 +181,7 @@ function portClose() {
 }
 
 function serialEvent() {
-  //console.log("helloooo");
+  console.log("helloooo");
 
   var data = serial.readLine();
   console.log(data);
@@ -142,7 +189,7 @@ function serialEvent() {
   if (data.length > 0) {
 
     var states = data.split(',');
-    // ['0','1','0']
+    //DO I STILL NEED THIS IF THE USER DOESN'T  COMBINE SENSORS?
     var sum = int(states[0]) + int(states[1]) + int(states[2]);
 
     if (sum == 0) {
@@ -215,98 +262,133 @@ function draw() {
 }
 
 //FUNCTIONS THAT ARE CALLED WHEN SENSORS ARE PRESSED
-//Enters the currentSyllable into a growing
-//word at the bottom of the screen.
-function enterFunction() {
-  // save results:
-  print("Save results");
-  word += currentSyllable;
-}
-//Delete latest sound of word
-//How will this work? Currently returns a null
-function deleteFunction() {
-  // Delete results:
-  print("Delete results");
-  word -= currentSyllable;
-}
-//Saves results to the server
-//When is this called?
-//How will I do this?
-function saveFunction() {
-  //Save results to "server"
-  print("Save results");
-}
+
 //Called when the mouth0Sensor is pressed.
 //Finds the next element in the mouth0Index
 //by using an index pointer/counter
 //and stores it into the currentSyllable
 //variable which is GLOBAL so it can be used
 //in other functions in my code
-function mouthFunction() {
-  print("Mouth Pressed");
-  let sound = mouth0Sensor[mouth0Index];
+function mouthOpenFunction() {
+  print("Mouth Open!");
+  let sound = mouthOpenSensors[mouthOpenIndex];
   //Takes created array of mouth0Sounds with the index counter's value
   //and plays that sound
-  mouth0Sounds[mouth0Index].play();
+  mouthOpenSounds[mouthOpenIndex].play();
   currentSyllable = sound;
   print(sound);
-  mouth0Index++;
-  if (mouth0Index > mouth0Sensor.length - 1) {
-    mouth0Index = 0;
+  mouthOpenIndex++;
+  if (mouthOpenIndex > mouthOpenSensors.length - 1) {
+    mouthOpenIndex = 0;
   }
 }
 //No need for teeth or tongue sounds
+function mouthHalfwayFunction() {
+  print("Mouth Halfway Open!");
+  let sound = mouthHalfwaySensors[mouthHalfwayIndex];
+  //Takes created array of mouth0Sounds with the index counter's value
+  //and plays that sound
+  mouthHalfwaySounds[mouthHalfwayIndex].play();
+  currentSyllable = sound;
+  print(sound);
+  mouthHalfwayIndex++;
+  if (mouthHalfwayIndex > mouthHalfwaySensors.length - 1) {
+    mouthHalfwayIndex = 0;
+  }
+}
+
+//No need for teeth or tongue sounds
+function mouthClosedFunction() {
+  print("Mouth Closed!");
+  let sound = mouthClosedSensors[mouthClosedIndex];
+  //Takes created array of mouth0Sounds with the index counter's value
+  //and plays that sound
+  mouthHalfwaySounds[mouthClosedIndex].play();
+  currentSyllable = sound;
+  print(sound);
+  mouthClosedIndex++;
+  if (mouthClosedIndex > mouthClosedSensors.length - 1) {
+    mouthClosedIndex = 0;
+  }
+}
+
 function teethFunction() {
-  print("teeth Pressed");
-}
-
-function tongueFunction() {
-  print("tongue Pressed");
-}
-//Called when the mouth0Sensor and teeth1Sensor are pressed.
-//Finds the next element in this array and stores it
-//into a sound variable, which then stores it into a
-//global variable to use later.
-function mouthAndTeethFunction() {
-  print("mouth AND teeth pressed!");
-  let sound = mouth0Teeth1Sensors[mouth0Teeth1Index];
-  mouth0Teeth1Sounds[mouth0Teeth1Index].play();
+  print("Teeth Pinched!");
+  let sound = teeth3Sensors[teeth3Index];
+  //Takes created array of mouth0Sounds with the index counter's value
+  //and plays that sound
+  teeth3Sounds[teeth3Index].play();
   currentSyllable = sound;
   print(sound);
-  mouth0Teeth1Index++;
-  if (mouth0Teeth1Index > mouth0Teeth1Sensors.length - 1) {
-    mouth0Teeth1Index = 0;
-  }
-}
-//Called when the teethSensor1 and tongueSensor2 are pressed.
-function teethAndTongueFunction() {
-  print("tongue AND teeth pressed!");
-  let sound = teeth1Tongue2Sensors[teeth1Tongue2Index];
-  teeth1Tongue2Sounds[teeth1Tongue2Index].play();
-  print(sound);
-  currentSyllable = sound;
-  teeth1Tongue2Index++;
-  if (teeth1Tongue2Index > teeth1Tongue2Sensors.length - 1) {
-    teeth1Tongue2Index = 0;
+  teeth3Index++;
+  if (teeth3Index > teeth3Sensors.length - 1) {
+    teeth3Index = 0;
   }
 }
 
-function mouthAndTongueFunction() {
-  print("mouth AND tongue pressed!");
-  let sound = mouth0Tongue2Sensors[mouth0Tongue2Index];
-  mouth0Tongue2Sounds[mouth0Tongue2Index].play();
+function tongue4Function() {
+  print("Tip of tongue pressed!");
+  let sound = tongue4SoundsSensors[tongue4Index];
+  teeth4Sounds[tongue4Index].play();
+  currentSyllable = sound;
+  print(sound);
+  tongue4Index++;
+  if (tongue4Index > teeth4Sensors.length - 1) {
+    tongue4Index = 0;
+  }
+}
+function tongue5Function() {
+  print("Middle of tongue pressed!!");
+  let sound = tongue5Sensors[tongue5Index];
+  tongue5Sounds[tongue5Index].play();
   print(sound);
   currentSyllable = sound;
-  mouth0Tongue2Index++;
-  if (mouth0Tongue2Index > mouth0Tongue2Sensors.length - 1) {
-    mouth0Tongue2Index = 0;
+  tongue5Index++;
+  if (tongue5Index > tongue5Sensors.length - 1) {
+    tongue5Index = 0;
+  }
+}
+
+function tongue6Function() {
+  print("Back of tongue pressed!!");
+  let sound = tongue6Sensors[tongue6Index];
+  tongue6Sounds[tongue6Index].play();
+  print(sound);
+  currentSyllable = sound;
+  tongue6Index++;
+  if (tongue6Index > tongue6Sensors.length - 1) {
+    tongue6Index = 0;
+  }
+}
+
+
+  //NOT FULLY WRITTEN YET
+  //Enters the currentSyllable into a growing
+  //word at the bottom of the screen.
+  function enterFunction() {
+    // save results:
+    print("Save results");
+    word += currentSyllable;
+  }
+  //Delete latest sound of word
+  //How will this work? Currently returns a null
+  function deleteFunction() {
+    // Delete results:
+    print("Delete results");
+    word -= currentSyllable;
+  }
+  //Saves results to the server
+  //When is this called?
+  //How will I do this?
+  function saveFunction() {
+    //Save results to "server"
+    print("Save results");
   }
 }
 
 
 //VARIABLE FOR ASSIGNING SERIAL DATA TO KEY BUTTONS
-//GETS MAPPED DATA OF WHICH SENSOR COMBINATIONS EQUAL
-//WHICH CODES BELOW
+//GETS MAPPED DATA OF WHICH SENSOR COMBINATIONS EQUAL WHICH CODES BELOW
 //A larger function that allows the user to press various keys
 //and call their related smaller functions
 //Turning sensor value returns from serial/arduino into they
@@ -315,6 +397,38 @@ function mouthAndTongueFunction() {
 function playCode(code) {
   print(code);
 
+  //When mouth0Sensor is pressed, scroll through an array
+  if (code === 65) {
+    //Key A
+    mouthOpenFunction();
+  }
+  if (code === 83) {
+    //Key S
+    mouthHalfwayFunction();
+  }
+  if (code === 68) {
+    //Key D
+    mouthClosedFunction();
+  }
+  if (code === 70) {
+    //Key K
+    teeth3Function();
+  }
+  if (code === 71) {
+    //Key L
+    tongue4Function();
+  }
+  if (code === 72) {
+    //Key ;
+    tongue5Function();
+  }
+  //UPDATE CODE KEY
+  if (code === 74) {
+    //Key ;
+    tongue6Function();
+  }
+
+  //NOT WRITTEN YET
   //Not written yet
   //When delete is pressed, clear the result
   if (code === 8) {
@@ -326,33 +440,6 @@ function playCode(code) {
   if (code === 91) {
     //Command button
     saveFunction();
-  }
-  //When sensor0 is pressed, scroll through an array
-  if (code === 65) {
-    //Key A
-    mouthFunction();
-  }
-  if (code === 83) {
-    //Key S
-    teethFunction();
-  }
-  if (code === 68) {
-    //Key D
-    tongueFunction();
-  }
-  //For now, press K or L to equal pressing two
-  //sensors together. Later recreate this in Arduino
-  if (code === 75) {
-    //Key K
-    mouthAndTeethFunction();
-  }
-  if (code === 76) {
-    //Key L
-    teethAndTongueFunction();
-  }
-  if (code === 186) {
-    //Key ;
-    mouthAndTongueFunction();
   }
 }
 
