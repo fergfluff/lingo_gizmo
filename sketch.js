@@ -104,6 +104,20 @@ var arduinoToCodes = {
   '0,0,0,1,0,0': 71,
   '0,0,0,0,1,0': 72,
   '0,0,0,0,0,1': 74,
+
+  //what combinations equal no sounds?
+  
+  //Order: mouthpressed, mouthclosed/mouthhalfway/mouthopen, teethpressed, tiptongue, middletongue, backtongue
+  // '0,1,0,0,0,0' = no sound until mouth is closed all the way = TBD KEY /65
+  // '1,1,0,0,0,0': 68 == no one will try this?
+  // '0,2,0,0,0,0' = no sound without pressing mouth = TBD KEY
+  // '0,3,0,0,0,0' = no sound without pressing mouth = TBD KEY
+  // '1,2,0,0,0,0': 83 = high vowels
+  // '1,3,0,0,0,0': 83 = low vowels
+  // '0,0,1,0,0,0': 70 = teeth
+  // '0,0,0,1,0,0': 71  = tip of tongue
+  // '0,0,0,0,1,0': 72 = middle of tongue
+  // '0,0,0,0,0,1': 74 = back of tongue
 }
 var previousData;
 var scheduled;
