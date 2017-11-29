@@ -9,6 +9,9 @@
 //Design look of page!
 
 
+//Aaarons code
+let currentKey = null;
+
 //VARIABLES FOR SERIAL IN P5 SKETCH
 let serial; // variable to hold an instance of the serialport library
 let portName = '/dev/cu.usbmodem1421'; // fill in your serial port name here
@@ -116,18 +119,24 @@ function setup() {
 
   smooth(); // antialias drawing lines
 
-  serial = new p5.SerialPort(); // make a new instance of the serialport library
-  serial.on('list', printList); // set a callback function for the serialport list event
-  serial.on('connected', serverConnected); // callback for connecting to the server
-  serial.on('open', portOpen); // callback for the port opening
-  serial.on('data', serialEvent); // callback for when new data arrives
-  serial.on('error', serialError); // callback for errors
-  serial.on('close', portClose); // callback for the port closing
+  try {
+    serial = new p5.SerialPort(); // make a new instance of the serialport library
+    serial.on('list', printList); // set a callback function for the serialport list event
+    serial.on('connected', serverConnected); // callback for connecting to the server
+    serial.on('open', portOpen); // callback for the port opening
+    serial.on('data', serialEvent); // callback for when new data arrives
+    serial.on('error', serialError); // callback for errors
+    serial.on('close', portClose); // callback for the port closing
 
-  serial.list(); // list the serial ports
-  serial.open(portName); // open a serial port
+    serial.list(); // list the serial ports
+    serial.open(portName); // open a serial port
 
-  serial.write('x');
+    serial.write('x');
+  }
+  catch(err) {
+    console.log("oops");
+  }
+
 }
 
 function printList(portList) {
@@ -357,45 +366,45 @@ function playCode(code) {
   print(code);
 
   //NO SOUNDS
-  if (code === 90 || keyCode === 90) {
+  if (code === 90 || currentKey === 90) {
     //Key Z
     noSoundsFunction();
   }
-  if (code === 88 || keyCode === 88) {
+  if (code === 88 || currentKey === 88) {
     //Key X
     noSoundsFunction();
   }
-  if (code === 67 || keyCode === 67) {
+  if (code === 67 || currentKey === 67) {
     //Key C
     noSoundsFunction();
   }
   //SOUNDS
-  if (code === 65 || keyCode == 65) {
+  if (code === 65 || currentKey == 65) {
     //Key a;
     mouthClosedFunction();
   }
-  if (code === 83 || keyCode === 83) {
-    //Key S;
+  if (code === 83 || currentKey === 83) {
+    //Key s;
     mouthHalfwayFunction();
   }
-  if (code === 68 || keyCode === 68) {
-    //Key D;
+  if (code === 68 || currentKey === 68) {
+    //Key d;
     mouthOpenFunction();
   }
-  if (code === 70 || keyCode === 70) {
-    //Key E;
+  if (code === 70 || currentKey === 70) {
+    //Key e;
     teethFunction();
   }
-  if (code === 71 || keyCode === 71) {
-    //Key F;
+  if (code === 71 || currentKey === 71) {
+    //Key f;
     tipTongueFunction();
   }
-  if (code === 72 || keyCode === 72) {
-    //Key G;
+  if (code === 72 || currentKey === 72) {
+    //Key g;
     middleTongueFunction();
   }
-  if (code === 74 || keyCode === 74) {
-    //Key H;
+  if (code === 74 || currentKey === 74) {
+    //Key h;
     backTongueFunction();
   }
 
@@ -403,13 +412,13 @@ function playCode(code) {
   //NOT WRITTEN YET
   //Not written yet
   //When delete is pressed, clear the result
-  if (code === 8 || keyCode === 8) {
+  if (code === 8 || currentKey === 8) {
     //Delete key
     deleteFunction();
   }
   //Not written yet
   //When Command button is pressed, save the result
-  if (code === 91 || keyCode === 91) {
+  if (code === 91 || currentKey === 91) {
     //Command button
     saveFunction();
   }
@@ -417,10 +426,72 @@ function playCode(code) {
 
 
 function keyPressed() {
-  //When the space bar is pressed, move the result to the bottom
-  //of the screen
+  console.log('hellloooo')
+
+  currentKey = keyCode;
+
+  //retrieve the value from keyCode and assign it to my own variable currentKey
   if (keyCode === 32) {
     //Space bar
     enterFunction();
+  }
+
+  //NO SOUNDS
+  if (code === 90 || currentKey === 90) {
+    //Key Z
+    noSoundsFunction();
+  }
+  if (code === 88 || currentKey === 88) {
+    //Key X
+    noSoundsFunction();
+  }
+  if (code === 67 || currentKey === 67) {
+    //Key C
+    noSoundsFunction();
+
+  }
+  //SOUNDS
+  if (currentKey === 65) {
+    //Key a;
+    mouthClosedFunction();
+  }
+  if (currentKey === 83) {
+    //Key s;
+    mouthHalfwayFunction();
+  }
+  if (currentKey === 68) {
+    //Key d;
+    mouthOpenFunction();
+  }
+  if (currentKey === 70) {
+    //Key e;
+    teethFunction();
+  }
+  if (currentKey === 71) {
+    //Key f;
+    tipTongueFunction();
+  }
+  if (currentKey === 72) {
+    //Key g;
+    middleTongueFunction();
+  }
+  if (currentKey === 74) {
+    //Key h;
+    backTongueFunction();
+  }
+
+
+  //NOT WRITTEN YET
+  //Not written yet
+  //When delete is pressed, clear the result
+  if (currentKey === 8) {
+    //Delete key
+    deleteFunction();
+  }
+  //Not written yet
+  //When Command button is pressed, save the result
+  if (currentKey === 91) {
+    //Command button
+    saveFunction();
   }
 }
