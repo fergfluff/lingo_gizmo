@@ -26,7 +26,7 @@ let mouthHalfwaySensors = ['ehh', 'ee', 'uouhh', 'er', 'aiy', 'aehh', 'ooo'];
 let mouthHalfwayIndex = 0;
 let mouthHalfwaySounds = [];
 
-let mouthClosedSensors = ['mah', 'pah', 'bah', 'wah'];
+let mouthClosedSensors = ['mmm', 'pah', 'bah', 'wah'];
 let mouthClosedIndex = 0;
 let mouthClosedSounds = [];
 
