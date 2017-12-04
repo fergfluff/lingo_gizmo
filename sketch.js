@@ -1,15 +1,27 @@
-//Random todos
+//CREATE THREE WEBPAGES
+//1) ALMOST DONE
+//-why is NaN printing
+//-how to make a dotted line around the edge
+//2) START - HOW DO I WRITE OVER A CANVAS
+//3) START - SAME QUESTION
 
-//Change "code" variable
-//Why don't key presses work
-//Do I need "no sound" feedback on the screen for the user?
-//Talk to Aaron about re-edit (again) files to be mmm instead of mah
-//Rerecord vah and eng to become ing
-//Replace dtha with TAH!
-//Design look of page!
+//HOW DO I BETTER ORGANIZE MY CODE - VERY LONG
 
 
-//Aaarons code
+//VARIABLES FOR SOUND recorder
+let oldWords = [];
+let newWord;
+let hearCompButton;
+let textbox;
+let spelling;
+let spellButton;
+let recordButton;
+let stopRecordButton;
+let saveButton;
+let name;
+let nameBox;
+
+//Aarons code
 let currentKey = null;
 
 //VARIABLES FOR SERIAL IN P5 SKETCH
@@ -89,8 +101,13 @@ var scheduled;
 var previousSum = 0;
 
 
-//PRELOAD MP3S USING ARRAYS
+//PRELOAD
+
+//PRELOAD BACKGROUND IMAGE
 function preload() {
+  felt = loadImage("feltbackground.jpg");
+
+  //PRELOAD MP3S USING ARRAYS
   for (let i = 0; i < mouthOpenSensors.length; i++) {
     mouthOpenSounds.push(loadSound("soundfiles/" + mouthOpenSensors[i] + ".mp3"));
   }
@@ -114,11 +131,61 @@ function preload() {
   }
 }
 
+//SET UP
 function setup() {
+  //SET UP CANVAS
   createCanvas(windowWidth, windowHeight);
-
+  background(felt);
   smooth(); // antialias drawing lines
 
+
+  //ADD A PHONEME
+  let addSoundButton = createButton('Add');
+  addSoundButton.mousePressed(addSoundFunction);
+  addSoundButton.position(width / 3 + 120, height / 3 + 100);
+  addSoundButton.style('font-size', '30px');
+  addSoundButton.size(125, 50);
+
+  //DELETE A PHONEME
+  let deleteSoundButton = createButton('Delete');
+  deleteSoundButton.mousePressed(deleteSoundFunction);
+  deleteSoundButton.position(width / 3 + 260, height / 3 + 100);
+  deleteSoundButton.style('font-size', '30px');
+  deleteSoundButton.size(125, 50);
+
+  //INPUT FIELD FOR USER SPELLING
+  spellingBox = createInput();
+  spellingBox.position(width / 2, height / 3 + 275);
+  spellingBox.size(300, 30);
+
+  //RECORD BUTTON
+  let recordButton = createButton('Record');
+  recordButton.mousePressed(recordFunction);
+  recordButton.position(width / 2, height / 3 + 350);
+  recordButton.style('font-size', '20px');
+  recordButton.size(100, 50);
+
+  //STOP RECORDING BUTTON
+  let stopRecordButton = createButton('Stop');
+  stopRecordButton.mousePressed(stopRecordFunction);
+  stopRecordButton.position(width / 2 + 125, height / 3 + 350);
+  stopRecordButton.style('font-size', '20px');
+  stopRecordButton.size(100, 50);
+
+  //INPUT FIELD FOR USER NAME
+  nameBox = createInput();
+  nameBox.position(width / 2, height / 3 + 425);
+  nameBox.size(300, 30);
+
+  //BUTTON FOR SAVING WORD
+  let saveButton = createButton('Save Word');
+  saveButton.mousePressed(saveFunction);
+  saveButton.position(width / 3 + 175, height / 3 + 475);
+  saveButton.style('font-size', '30px', 'color', '#ff0000')
+  saveButton.size(200, 60);
+
+
+  //SET UP SERIAL PORT
   try {
     serial = new p5.SerialPort(); // make a new instance of the serialport library
     serial.on('list', printList); // set a callback function for the serialport list event
@@ -132,10 +199,16 @@ function setup() {
     serial.open(portName); // open a serial port
 
     serial.write('x');
-  }
-  catch(err) {
+  } catch (err) {
     console.log("oops");
   }
+
+  //SET UP RECORDER
+  mic = new p5.AudioIn();
+  mic.start();
+  recorder = new p5.SoundRecorder();
+  recorder.setInput(mic);
+  newWord = new p5.SoundFile();
 
 }
 
@@ -195,51 +268,37 @@ function serialEvent() {
 //SHOW CURRENT PHONEME IN CENTER AND SHOW USER'S SELECTED SOUNDS
 //TO BOTTOM OF SCREEN
 function draw() {
-  background(33, 58, 104);
+  background(felt);
+  textSize(200);
+  fill(0);
+  text(currentSyllable, width / 3 + 75, 275);
+  line(800, 500, 1500, 500);
 
-  fill(5, 169, 198);
-  textAlign(CENTER, CENTER);
-  textSize(60);
-  text('Make a Word', width / 2, 60);
-
-  // Whatever the value of the
-  // currentSyllable variable is,
-  //show it in the center of canvas
-  textSize(20);
-  text('1. Add syllables to your word by', width / 2, 150);
-  text('pressing the mouth, teeth and/or tongue', width / 2, 175);
-
+  //SET UP TEXT, BUTTONS, INPUTS ON SCREEN
+  //TITLE
+  fill(0);
+  textAlign(width / 2, height / 2);
   textSize(50);
-  fill(7, 147, 9);
-  text(currentSyllable, width / 2, 250);
+  text('Build an Original Word', width / 3, 60);
 
-  // textSize(20);
-  // fill(5, 169, 198);
-  // text('2. Press the space bar to save your syllables', width / 2, 320);
-  //
-  // textAlign(LEFT);
-  // textSize(30);
-  // text("Current word:", 70, 430)
-  // text(word, 270, height - 70);
+  //CURRENT PHONEME
+  //Found in draw()
 
-  // textSize(20);
-  // text("TBD Button: Hear Your Word", 70, 480);
-  // textSize(30);
-  // text("Do you want to define your word,", 70, 540);
-  // text("or save it for someone else to define?", 70, 570);
-  // textSize(20);
-  // text("TBD Button: Save Your Word ", 70, 620)
-  // text("TBD Button: Define Your Word", 70, 640)
-  //
-  // textSize(30);
-  // text("Do you have a meaning that needs a word?", 70, 690);
-  // textSize(20);
-  // text("TBD Button: Describe your meaning that needs a word", 70, 720)
-  //
-  // textSize(30);
-  // text("View the most popular BRAND NEW words!", 70, 780);
-  // textSize(20);
-  // text("TBD Button: View Words", 70, 810)
+  //PRINT OUT CURRENT WORD
+  textSize(50);
+  text('Current Word:', width / 3 - 200, height / 3 + 225);
+  text(word, width / 3 + 250, height / 3 + 225);
+
+  fill(0);
+  textSize(30);
+  text('My spelling:', spellingBox.x - 200, spellingBox.y + spellingBox.height - 8);
+  spelling = spellingBox.value();
+
+  text('My pronunciation:', width / 2 - 275, height / 3 + 375);
+
+  fill(0);
+  textSize(30);
+  text('My name:', nameBox.x - 175, nameBox.y + nameBox.height - 8);
 }
 
 //FUNCTIONS THAT ARE CALLED WHEN SENSORS ARE PRESSED
@@ -334,24 +393,6 @@ function backTongueFunction() {
   }
 }
 
-//NOT FULLY WRITTEN YET
-//Enters the currentSyllable into a growing
-//word at the bottom of the screen.
-function enterFunction() {
-  // save results:
-  print("Save results");
-  word += currentSyllable;
-}
-//Delete latest sound of word
-//How will this work? Currently returns a null
-function deleteFunction() {
-  // Delete results:
-  print("Delete results");
-  word -= currentSyllable;
-}
-//Saves results to the server
-//When is this called?
-//How will I do this?
 function saveFunction() {
   //Save results to "server"
   print("Save results");
@@ -366,61 +407,46 @@ function playCode(code) {
   print(code);
 
   //NO SOUNDS
-  if (code === 90 || currentKey === 90) {
+  if (code === 90) {
     //Key Z
     noSoundsFunction();
   }
-  if (code === 88 || currentKey === 88) {
+  if (code === 88) {
     //Key X
     noSoundsFunction();
   }
-  if (code === 67 || currentKey === 67) {
+  if (code === 67) {
     //Key C
     noSoundsFunction();
   }
   //SOUNDS
-  if (code === 65 || currentKey == 65) {
+  if (code === 65) {
     //Key a;
     mouthClosedFunction();
   }
-  if (code === 83 || currentKey === 83) {
+  if (code === 83) {
     //Key s;
     mouthHalfwayFunction();
   }
-  if (code === 68 || currentKey === 68) {
+  if (code === 68) {
     //Key d;
     mouthOpenFunction();
   }
-  if (code === 70 || currentKey === 70) {
+  if (code === 70) {
     //Key e;
     teethFunction();
   }
-  if (code === 71 || currentKey === 71) {
+  if (code === 71) {
     //Key f;
     tipTongueFunction();
   }
-  if (code === 72 || currentKey === 72) {
+  if (code === 72) {
     //Key g;
     middleTongueFunction();
   }
-  if (code === 74 || currentKey === 74) {
+  if (code === 74) {
     //Key h;
     backTongueFunction();
-  }
-
-
-  //NOT WRITTEN YET
-  //Not written yet
-  //When delete is pressed, clear the result
-  if (code === 8 || currentKey === 8) {
-    //Delete key
-    deleteFunction();
-  }
-  //Not written yet
-  //When Command button is pressed, save the result
-  if (code === 91 || currentKey === 91) {
-    //Command button
-    saveFunction();
   }
 }
 
@@ -437,46 +463,46 @@ function keyPressed() {
   }
 
   //NO SOUNDS
-  if (code === 90 || currentKey === 90) {
+  if (currentKey === 90) {
     //Key Z
     noSoundsFunction();
   }
-  if (code === 88 || currentKey === 88) {
+  if (currentKey === 88) {
     //Key X
     noSoundsFunction();
   }
-  if (code === 67 || currentKey === 67) {
+  if (currentKey === 67) {
     //Key C
     noSoundsFunction();
 
   }
   //SOUNDS
-  if (currentKey === 65) {
-    //Key a;
+  if (currentKey === 49) {
+    //Key 1;
     mouthClosedFunction();
   }
-  if (currentKey === 83) {
-    //Key s;
+  if (currentKey === 50) {
+    //Key 2;
     mouthHalfwayFunction();
   }
-  if (currentKey === 68) {
-    //Key d;
+  if (currentKey === 51) {
+    //Key 3;
     mouthOpenFunction();
   }
-  if (currentKey === 70) {
-    //Key e;
+  if (currentKey === 52) {
+    //Key 4;
     teethFunction();
   }
-  if (currentKey === 71) {
-    //Key f;
+  if (currentKey === 53) {
+    //Key 5;
     tipTongueFunction();
   }
-  if (currentKey === 72) {
-    //Key g;
+  if (currentKey === 54) {
+    //Key 6;
     middleTongueFunction();
   }
-  if (currentKey === 74) {
-    //Key h;
+  if (currentKey === 55) {
+    //Key 7;
     backTongueFunction();
   }
 
@@ -494,4 +520,39 @@ function keyPressed() {
     //Command button
     saveFunction();
   }
+}
+
+
+//FUNCTIONS FOR RECORDING
+function addSoundFunction() {
+  console.log("heyooo");
+  word += currentSyllable;
+}
+
+function deleteSoundFunction() {
+  console.log("haii");
+  word -= currentSyllable;
+}
+
+function recordFunction() {
+  if (mic.enabled) {
+    console.log("helllooo")
+    recorder.record(newWord);
+  }
+}
+
+function stopRecordFunction() {
+  recorder.stop();
+  console.log("hiiiii")
+}
+
+function nameFunction() {
+  console.log("yooooo")
+  name = nameBox.value();
+  console.log(name);
+}
+
+function saveFunction() {
+  newWord.play(); // play the result!
+  save(newWord, spelling + 'by' + name + '.wav'); // save the result
 }
