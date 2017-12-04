@@ -1,9 +1,6 @@
 //CREATE THREE WEBPAGES
 //1) ALMOST DONE
 //-why is NaN printing
-//-how to make a dotted line around the edge
-//2) START - HOW DO I WRITE OVER A CANVAS
-//3) START - SAME QUESTION
 
 //HOW DO I BETTER ORGANIZE MY CODE - VERY LONG
 
@@ -30,15 +27,21 @@ let portName = '/dev/cu.usbmodem1421'; // fill in your serial port name here
 
 //VARIABLES FOR PHONEMES
 //MOUTH SENSORS 0 AND 1
-let mouthOpenSensors = ['aeh', 'ahh', 'oahhh', 'uhh', 'hah', 'yah'];
-let mouthOpenIndex = 0;
-let mouthOpenSounds = [];
 
-let mouthHalfwaySensors = ['ehh', 'ee', 'uouhh', 'er', 'aiy', 'aehh', 'ooo'];
-let mouthHalfwayIndex = 0;
-let mouthHalfwaySounds = [];
+//REORGANIZE SOUNDS TO MATCH A E I O U IF YOU PRESS ALL THREE OR TWO
+let mouthOneSensors = ['ehh', 'ee', 'uouhh', 'er',];
+let mouthOneIndex = 0;
+let mouthOneSounds = [];
 
-let mouthClosedSensors = ['mmm', 'pah', 'bah', 'wah'];
+let mouthTwoSensors = ['aiy', 'aehh', 'ooo'];
+let mouthTwoIndex = 0;
+let mouthTwoSounds = [];
+
+let mouthThreeSensors = ['aeh', 'ahh', 'oahhh', 'uhh', 'hah'];
+let mouthThreeIndex = 0;
+let mouthThreeSounds = [];
+
+let mouthClosedSensors = ['mmm', 'pah', 'bah', 'wah', 'yah'];
 let mouthClosedIndex = 0;
 let mouthClosedSounds = [];
 
@@ -48,20 +51,9 @@ let teethIndex = 0;
 let teethSounds = [];
 
 //TONGUE SENSOR 4 = PRESSING TIP OF TONGUE = CONSONANTS
-let tipTongueSensors = ['sah', 'zah', 'tha', 'lah'];
+let tipTongueSensors = ['sah', 'zah', 'tha', 'lah','nah', 'cha', 'tah', 'sha', 'zjyah', 'dah', 'juh', 'kah', 'gah', 'eng'];
 let tipTongueIndex = 0;
 let tipTongueSounds = [];
-
-//TONGUE SENSOR 5 = PRESSING MIDDLE OF TONGUE = CONSONANTS
-let middleTongueSensors = ['nah', 'cha', 'tah', 'sha', 'zjyah', 'dah', 'juh'];
-let middleTongueIndex = 0;
-let middleTongueSounds = [];
-
-//TONGUE SENSOR 6 = PRESSING BACK OF TONGUE = CONSONANTS
-let backTongueSensors = ['kah', 'gah', 'eng'];
-let backTongueIndex = 0;
-let backTongueSounds = [];
-
 
 //VARIABLES FOR BUILDING WORDS
 let currentSyllable = "uhh";
@@ -76,24 +68,21 @@ var code;
 var arduinoToCodes = {
   //Order: mouthpressed, mouthclosed/mouthhalfway/mouthopen, teethpressed, tiptongue, middletongue, backtongue
   //No sounds
-  '0,0,0,0,0,0': 90,
-  '0,2,0,0,0,0': 88,
-  '0,3,0,0,0,0': 67,
+  //No user inputs at all
+  '0,0,0,0,0,0': 67,
   //Sounds
+  //Start of mouth
+  '1,0,0,0,0,0': 49,
+  //Middle of mouth
+  '0,1,0,0,0,0': 50,
   //Mouth closed
-  '0,1,0,0,0,0': 65,
-  //Mouth pressed and half way open
-  '1,2,0,0,0,0': 83,
-  //Mouth pressed and all the way open
-  '1,3,0,0,0,0': 68,
+  '0,0,0,1,0,0': 51,
+  //Back of mouth
+  '0,0,1,0,0,0': 52,
   //Teeth
-  '0,0,1,0,0,0': 70,
-  //Tip of tongue
-  '0,0,0,1,0,0': 71,
-  //Middle of tongue
-  '0,0,0,0,1,0': 72,
-  //Back of tongue
-  '0,0,0,0,0,1': 74,
+  '0,0,0,0,1,0': 53,
+  //Tongue
+  '0,0,0,0,0,1': 54,
 }
 
 var previousData;
@@ -307,41 +296,41 @@ function draw() {
 //Finds the next element in the mouth0Index by using an index pointer/counter
 //and stores it into the currentSyllable variable which is GLOBAL so it can be used
 //in other functions in my code.
-function mouthOpenFunction() {
-  print("Mouth Open!");
-  let sound = mouthOpenSensors[mouthOpenIndex];
+function mouthOneFunction() {
+  print("Mouth 1!");
+  let sound = mouthOneSensors[mouthOneIndex];
   //Takes created array of mouth0Sounds with the index counter's value
   //and plays that sound
-  mouthOpenSounds[mouthOpenIndex].play();
+  mouthOneSounds[mouthOneIndex].play();
   currentSyllable = sound;
   print(sound);
-  mouthOpenIndex++;
-  if (mouthOpenIndex > mouthOpenSensors.length - 1) {
-    mouthOpenIndex = 0;
+  mouthOneIndex++;
+  if (mouthOneIndex > mouthOneSensors.length - 1) {
+    mouthOneIndex = 0;
   }
 }
 
-function mouthHalfwayFunction() {
-  print("Mouth Halfway Open!");
-  let sound = mouthHalfwaySensors[mouthHalfwayIndex];
-  mouthHalfwaySounds[mouthHalfwayIndex].play();
+function mouthTwoFunction() {
+  print("Mouth 2!");
+  let sound = mouthTwoSensors[mouthTwoIndex];
+  mouthTwoSounds[mouthTwoIndex].play();
   currentSyllable = sound;
   print(sound);
-  mouthHalfwayIndex++;
-  if (mouthHalfwayIndex > mouthHalfwaySensors.length - 1) {
-    mouthHalfwayIndex = 0;
+  mouthTwoIndex++;
+  if (mouthTwoIndex > mouthTwoSensors.length - 1) {
+    mouthTwoIndex = 0;
   }
 }
 
-function mouthClosedFunction() {
-  print("Mouth Closed!");
-  let sound = mouthClosedSensors[mouthClosedIndex];
-  mouthClosedSounds[mouthClosedIndex].play();
+function mouthThreeFunction() {
+  print("Mouth 3!");
+  let sound = mouthThreeSensors[mouthThreeIndex];
+  mouthThreeSounds[mouthThreeIndex].play();
   currentSyllable = sound;
   print(sound);
-  mouthClosedIndex++;
-  if (mouthClosedIndex > mouthClosedSensors.length - 1) {
-    mouthClosedIndex = 0;
+  mouthThreeIndex++;
+  if (mouthThreeIndex > mouthThreeSensors.length - 1) {
+    mouthThreeIndex = 0;
   }
 }
 
@@ -369,34 +358,10 @@ function tipTongueFunction() {
   }
 }
 
-function middleTongueFunction() {
-  print("Middle of tongue pressed!!");
-  let sound = middleTongueSensors[middleTongueIndex];
-  middleTongueSounds[middleTongueIndex].play();
-  print(sound);
-  currentSyllable = sound;
-  middleTongueIndex++;
-  if (middleTongueIndex > middleTongueSensors.length - 1) {
-    middleTongueIndex = 0;
-  }
-}
-
-function backTongueFunction() {
-  print("Back of tongue pressed!!");
-  let sound = backTongueSensors[backTongueIndex];
-  backTongueSounds[backTongueIndex].play();
-  print(sound);
-  currentSyllable = sound;
-  backTongueIndex++;
-  if (backTongueIndex > backTongueSensors.length - 1) {
-    backTongueIndex = 0;
-  }
-}
-
-function saveFunction() {
-  //Save results to "server"
-  print("Save results");
-}
+// function saveFunction() {
+//   //Save results to "server"
+//   print("Save results");
+// }
 
 
 //VARIABLES FOR ASSIGNING SERIAL DATA TO KEY BUTTONS
@@ -406,48 +371,40 @@ function saveFunction() {
 function playCode(code) {
   print(code);
 
+
+
   //NO SOUNDS
-  if (code === 90) {
-    //Key Z
-    noSoundsFunction();
-  }
-  if (code === 88) {
-    //Key X
-    noSoundsFunction();
-  }
   if (code === 67) {
     //Key C
     noSoundsFunction();
   }
   //SOUNDS
-  if (code === 65) {
-    //Key a;
+  if (code === 49) {
+    mouthOneFunction();
+  }
+  if (code === 50) {
+    mouthTwoFunction();
+  }
+  if (code === 51) {
+    mouthThreeFunction();
+  }
+  if (code === 52) {
     mouthClosedFunction();
   }
-  if (code === 83) {
-    //Key s;
-    mouthHalfwayFunction();
-  }
-  if (code === 68) {
-    //Key d;
-    mouthOpenFunction();
-  }
-  if (code === 70) {
-    //Key e;
+  if (code === 53) {
     teethFunction();
   }
-  if (code === 71) {
-    //Key f;
+  if (code === 54) {
     tipTongueFunction();
   }
-  if (code === 72) {
-    //Key g;
-    middleTongueFunction();
-  }
-  if (code === 74) {
-    //Key h;
-    backTongueFunction();
-  }
+  // if (code === 72) {
+  //   //Key g;
+  //   middleTongueFunction();
+  // }
+  // if (code === 74) {
+  //   //Key h;
+  //   backTongueFunction();
+  // }
 }
 
 
@@ -457,69 +414,82 @@ function keyPressed() {
   currentKey = keyCode;
 
   //retrieve the value from keyCode and assign it to my own variable currentKey
-  if (keyCode === 32) {
-    //Space bar
-    enterFunction();
-  }
+  // if (keyCode === 32) {
+  //   //Space bar
+  //   enterFunction();
+  // }
 
-  //NO SOUNDS
-  if (currentKey === 90) {
-    //Key Z
-    noSoundsFunction();
-  }
-  if (currentKey === 88) {
-    //Key X
-    noSoundsFunction();
-  }
+  // //NO SOUNDS
+  // if (currentKey === 90) {
+  //   //Key Z
+  //   noSoundsFunction();
+  // }
+  // if (currentKey === 88) {
+  //   //Key X
+  //   noSoundsFunction();
+  // }
+  // if (currentKey === 67) {
+  //   //Key C
+  //   noSoundsFunction();
+  //
+  // }
+
+
+
+
+
+  //SOUNDS
   if (currentKey === 67) {
     //Key C
     noSoundsFunction();
 
-  }
-  //SOUNDS
   if (currentKey === 49) {
     //Key 1;
-    mouthClosedFunction();
+    mouthOneFunction();
   }
   if (currentKey === 50) {
     //Key 2;
-    mouthHalfwayFunction();
+    mouthTwoFunction();
   }
   if (currentKey === 51) {
     //Key 3;
-    mouthOpenFunction();
+    mouthThreeFunction();
   }
   if (currentKey === 52) {
     //Key 4;
-    teethFunction();
+    mouthClosedFunction();
   }
   if (currentKey === 53) {
     //Key 5;
-    tipTongueFunction();
+    teethFunction();
   }
   if (currentKey === 54) {
     //Key 6;
-    middleTongueFunction();
+    tipTongueFunction();
   }
-  if (currentKey === 55) {
-    //Key 7;
-    backTongueFunction();
-  }
+  // if (currentKey === 55) {
+  //   //Key 6;
+  //   middleTongueFunction();
+  // }
+  // if (currentKey === 56) {
+  //   //Key 7;
+  //   backTongueFunction();
+  // }
 
 
-  //NOT WRITTEN YET
-  //Not written yet
-  //When delete is pressed, clear the result
-  if (currentKey === 8) {
-    //Delete key
-    deleteFunction();
-  }
-  //Not written yet
-  //When Command button is pressed, save the result
-  if (currentKey === 91) {
-    //Command button
-    saveFunction();
-  }
+  // //NOT WRITTEN YET
+  // //Not written yet
+  // //When delete is pressed, clear the result
+  // if (currentKey === 8) {
+  //   //Delete key
+  //   deleteFunction();
+  // }
+  // //Not written yet
+  // //When Command button is pressed, save the result
+  // if (currentKey === 91) {
+  //   //Command button
+  //   saveFunction();
+  // }
 }
 
 
