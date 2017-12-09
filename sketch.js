@@ -29,15 +29,18 @@ let portName = '/dev/cu.usbmodem1421'; // fill in your serial port name here
 //MOUTH SENSORS 0 AND 1
 
 //REORGANIZE SOUNDS TO MATCH A E I O U IF YOU PRESS ALL THREE OR TWO
-let mouthOneSensors = ['ehh', 'ee', 'uouhh', 'er',];
+let mouthOneSensors = ['ee', 'uouhh'];
+//save for later er, ehh
 let mouthOneIndex = 0;
 let mouthOneSounds = [];
 
-let mouthTwoSensors = ['aiy', 'aehh', 'ooo'];
+let mouthTwoSensors = ['aiy', 'ooo'];
+//save for later aehh
 let mouthTwoIndex = 0;
 let mouthTwoSounds = [];
 
-let mouthThreeSensors = ['aeh', 'ahh', 'oahhh', 'uhh', 'hah'];
+let mouthThreeSensors = ['ahh', 'oahhh'];
+//save for later aeh, hah, uhh
 let mouthThreeIndex = 0;
 let mouthThreeSounds = [];
 
@@ -51,7 +54,7 @@ let teethIndex = 0;
 let teethSounds = [];
 
 //TONGUE SENSOR 4 = PRESSING TIP OF TONGUE = CONSONANTS
-let tipTongueSensors = ['sah', 'zah', 'tha', 'lah','nah', 'cha', 'tah', 'sha', 'zjyah', 'dah', 'juh', 'kah', 'gah', 'eng'];
+let tipTongueSensors = ['sah', 'zah', 'tha', 'lah', 'nah', 'cha', 'tah', 'sha', 'zjyah', 'dah', 'juh', 'kah', 'gah', 'eng'];
 let tipTongueIndex = 0;
 let tipTongueSounds = [];
 
@@ -69,16 +72,17 @@ var arduinoToCodes = {
   //Order: mouthpressed, mouthclosed/mouthhalfway/mouthopen, teethpressed, tiptongue, middletongue, backtongue
   //No sounds
   //No user inputs at all
-  '0,0,0,0,0,0': 67,
+  '0,0,0,0,0,0': 192,
   //Sounds
   //Start of mouth
   '1,0,0,0,0,0': 49,
   //Middle of mouth
   '0,1,0,0,0,0': 50,
-  //Mouth closed
-  '0,0,0,1,0,0': 51,
   //Back of mouth
-  '0,0,1,0,0,0': 52,
+  '0,0,1,0,0,0': 51,
+  //Mouth closed
+  '0,0,0,1,0,0': 52,
+  '1,0,0,1,0,0': 52,
   //Teeth
   '0,0,0,0,1,0': 53,
   //Tongue
@@ -97,27 +101,30 @@ function preload() {
   felt = loadImage("feltbackground.jpg");
 
   //PRELOAD MP3S USING ARRAYS
-  for (let i = 0; i < mouthOpenSensors.length; i++) {
-    mouthOpenSounds.push(loadSound("soundfiles/" + mouthOpenSensors[i] + ".mp3"));
+  for (let i = 0; i < mouthOneSensors.length; i++) {
+    mouthOneSounds.push(loadSound("soundfiles/" + mouthOneSensors[i] + ".mp3"));
   }
-  for (let j = 0; j < mouthHalfwaySensors.length; j++) {
-    mouthHalfwaySounds.push(loadSound("soundfiles/" + mouthHalfwaySensors[j] + ".mp3"));
+  for (let j = 0; j < mouthTwoSensors.length; j++) {
+    mouthTwoSounds.push(loadSound("soundfiles/" + mouthTwoSensors[j] + ".mp3"));
   }
-  for (let k = 0; k < mouthClosedSensors.length; k++) {
-    mouthClosedSounds.push(loadSound("soundfiles/" + mouthClosedSensors[k] + ".mp3"));
+  for (let k = 0; k < mouthThreeSensors.length; k++) {
+    mouthThreeSounds.push(loadSound("soundfiles/" + mouthThreeSensors[k] + ".mp3"));
   }
-  for (let m = 0; m < teethSensors.length; m++) {
-    teethSounds.push(loadSound("soundfiles/" + teethSensors[m] + ".mp3"));
+  for (let m = 0; m < mouthClosedSensors.length; m++) {
+    mouthClosedSounds.push(loadSound("soundfiles/" + mouthClosedSensors[m] + ".mp3"));
   }
-  for (let n = 0; n < tipTongueSensors.length; n++) {
-    tipTongueSounds.push(loadSound("soundfiles/" + tipTongueSensors[n] + ".mp3"));
+  for (let n = 0; n < teethSensors.length; n++) {
+    teethSounds.push(loadSound("soundfiles/" + teethSensors[n] + ".mp3"));
   }
-  for (let o = 0; o < middleTongueSensors.length; o++) {
-    middleTongueSounds.push(loadSound("soundfiles/" + middleTongueSensors[o] + ".mp3"));
+  for (let o = 0; o < tipTongueSensors.length; o++) {
+    tipTongueSounds.push(loadSound("soundfiles/" + tipTongueSensors[o] + ".mp3"));
   }
-  for (let p = 0; p < backTongueSensors.length; p++) {
-    backTongueSounds.push(loadSound("soundfiles/" + backTongueSensors[p] + ".mp3"));
-  }
+  // for (let o = 0; o < middleTongueSensors.length; o++) {
+  //   middleTongueSounds.push(loadSound("soundfiles/" + middleTongueSensors[o] + ".mp3"));
+  // }
+  // for (let p = 0; p < backTongueSensors.length; p++) {
+  //   backTongueSounds.push(loadSound("soundfiles/" + backTongueSensors[p] + ".mp3"));
+  // }
 }
 
 //SET UP
@@ -144,6 +151,8 @@ function setup() {
 
   //INPUT FIELD FOR USER SPELLING
   spellingBox = createInput();
+  textSize(30);
+  spellingBox.style('font-size', '30px');
   spellingBox.position(width / 2, height / 3 + 275);
   spellingBox.size(300, 30);
 
@@ -163,6 +172,7 @@ function setup() {
 
   //INPUT FIELD FOR USER NAME
   nameBox = createInput();
+  nameBox.style('font-size', '30px');
   nameBox.position(width / 2, height / 3 + 425);
   nameBox.size(300, 30);
 
@@ -254,6 +264,9 @@ function serialEvent() {
     serial.write('x'); // send a byte requesting more serial data
   }
 }
+
+
+
 //SHOW CURRENT PHONEME IN CENTER AND SHOW USER'S SELECTED SOUNDS
 //TO BOTTOM OF SCREEN
 function draw() {
@@ -261,7 +274,7 @@ function draw() {
   textSize(200);
   fill(0);
   text(currentSyllable, width / 3 + 75, 275);
-  line(800, 500, 1500, 500);
+  // line(1000, 635, 1500, 635);
 
   //SET UP TEXT, BUTTONS, INPUTS ON SCREEN
   //TITLE
@@ -288,6 +301,8 @@ function draw() {
   fill(0);
   textSize(30);
   text('My name:', nameBox.x - 175, nameBox.y + nameBox.height - 8);
+  name = nameBox.value();
+
 }
 
 //FUNCTIONS THAT ARE CALLED WHEN SENSORS ARE PRESSED
@@ -334,6 +349,18 @@ function mouthThreeFunction() {
   }
 }
 
+function mouthClosedFunction() {
+  print("Mouth Closed!");
+  let sound = mouthClosedSensors[mouthClosedIndex];
+  mouthClosedSounds[mouthClosedIndex].play();
+  currentSyllable = sound;
+  print(sound);
+  mouthClosedIndex++;
+  if (mouthClosedIndex > mouthClosedSensors.length - 1) {
+    mouthClosedIndex = 0;
+  }
+}
+
 function teethFunction() {
   print("Teeth Pinched!");
   let sound = teethSensors[teethIndex];
@@ -358,23 +385,16 @@ function tipTongueFunction() {
   }
 }
 
-// function saveFunction() {
-//   //Save results to "server"
-//   print("Save results");
-// }
-
 
 //VARIABLES FOR ASSIGNING SERIAL DATA TO KEY BUTTONS
 //GETS MAPPED DATA OF WHICH SENSOR COMBINATIONS EQUAL WHICH CODES BELOW,
 //AND ASSIGNS THEM TO FUNCTIONS TO BE CALLED
 
 function playCode(code) {
-  print(code);
-
-
+  console.log(code);
 
   //NO SOUNDS
-  if (code === 67) {
+  if (code === 192) {
     //Key C
     noSoundsFunction();
   }
@@ -393,6 +413,7 @@ function playCode(code) {
   }
   if (code === 53) {
     teethFunction();
+    console.log("HELLLO ARE YOU THERE");
   }
   if (code === 54) {
     tipTongueFunction();
@@ -414,34 +435,12 @@ function keyPressed() {
   currentKey = keyCode;
 
   //retrieve the value from keyCode and assign it to my own variable currentKey
-  // if (keyCode === 32) {
-  //   //Space bar
-  //   enterFunction();
-  // }
-
-  // //NO SOUNDS
-  // if (currentKey === 90) {
-  //   //Key Z
-  //   noSoundsFunction();
-  // }
-  // if (currentKey === 88) {
-  //   //Key X
-  //   noSoundsFunction();
-  // }
-  // if (currentKey === 67) {
-  //   //Key C
-  //   noSoundsFunction();
-  //
-  // }
-
-
-
-
 
   //SOUNDS
-  if (currentKey === 67) {
+  if (currentKey === 192) {
     //Key C
     noSoundsFunction();
+  }
 
   if (currentKey === 49) {
     //Key 1;
@@ -467,6 +466,8 @@ function keyPressed() {
     //Key 6;
     tipTongueFunction();
   }
+
+
   // if (currentKey === 55) {
   //   //Key 6;
   //   middleTongueFunction();
@@ -474,21 +475,6 @@ function keyPressed() {
   // if (currentKey === 56) {
   //   //Key 7;
   //   backTongueFunction();
-  // }
-
-
-  // //NOT WRITTEN YET
-  // //Not written yet
-  // //When delete is pressed, clear the result
-  // if (currentKey === 8) {
-  //   //Delete key
-  //   deleteFunction();
-  // }
-  // //Not written yet
-  // //When Command button is pressed, save the result
-  // if (currentKey === 91) {
-  //   //Command button
-  //   saveFunction();
   // }
 }
 
