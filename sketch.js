@@ -1,8 +1,8 @@
 //CREATE THREE WEBPAGES
-//1) ALMOST DONE
-//-why is NaN printing
-
-//HOW DO I BETTER ORGANIZE MY CODE - VERY LONG
+//1) Fix border
+//2) Fix Start Over function
+//3) Add recording visual icon
+//4) Figure out how to show animation at first
 
 
 //VARIABLES FOR SOUND recorder
@@ -10,6 +10,7 @@ let oldWords = [];
 let newWord;
 let hearCompButton;
 let textbox;
+let definition;
 let spelling;
 let spellButton;
 let recordButton;
@@ -17,9 +18,10 @@ let stopRecordButton;
 let saveButton;
 let name;
 let nameBox;
+let definitionBox;
 
-//Aarons code
-let currentKey = null;
+
+
 
 //VARIABLES FOR SERIAL IN P5 SKETCH
 let serial; // variable to hold an instance of the serialport library
@@ -29,39 +31,54 @@ let portName = '/dev/cu.usbmodem1421'; // fill in your serial port name here
 //MOUTH SENSORS 0 AND 1
 
 //REORGANIZE SOUNDS TO MATCH A E I O U IF YOU PRESS ALL THREE OR TWO
-let mouthOneSensors = ['ee', 'uouhh'];
-//save for later er, ehh
+let mouthOneSensors = ['ee', 'ehh', 'uouhh', 'er'];
 let mouthOneIndex = 0;
 let mouthOneSounds = [];
 
-let mouthTwoSensors = ['aiy', 'ooo'];
-//save for later aehh
+let mouthTwoSensors = ['aiy', 'aehh', 'ooo'];
 let mouthTwoIndex = 0;
 let mouthTwoSounds = [];
 
-let mouthThreeSensors = ['ahh', 'oahhh'];
-//save for later aeh, hah, uhh
+let mouthThreeSensors = ['ahh', 'oahhh', 'uhh','hah',];
+//save for later aeh
 let mouthThreeIndex = 0;
 let mouthThreeSounds = [];
 
-let mouthClosedSensors = ['mmm', 'pah', 'bah', 'wah', 'yah'];
+let mouthClosedSensors = ['bah','pah', 'wah', 'yah', 'mmm'];
 let mouthClosedIndex = 0;
 let mouthClosedSounds = [];
 
 //TEETH SENSOR 3 = PINCHING TOP OF TEETH = CONSONANTS
-let teethSensors = ['vah', 'fah', 'rah'];
-let teethIndex = 0;
-let teethSounds = [];
+let teethOneSensors = ['vah', 'fah', 'rah'];
+let teethOneIndex = 0;
+let teethOneSounds = [];
 
-//TONGUE SENSOR 4 = PRESSING TIP OF TONGUE = CONSONANTS
-let tipTongueSensors = ['sah', 'zah', 'tha', 'lah', 'nah', 'cha', 'tah', 'sha', 'zjyah', 'dah', 'juh', 'kah', 'gah', 'eng'];
+//TEETH SENSOR 4 = PINCHING BOTTOM OF TEETH = CONSONANTS
+let teethTwoSensors = ['vah', 'fah', 'rah'];
+let teethTwoIndex = 0;
+let teethTwoSounds = [];
+
+//TONGUE SENSOR 5 = PRESSING TIP OF TONGUE = CONSONANTS
+let tipTongueSensors = ['lah', 'sah', 'tha'];
 let tipTongueIndex = 0;
 let tipTongueSounds = [];
+
+//TONGUE SENSOR 6 = PRESSING MIDDLE OF TONGUE = CONSONANTS
+let middleTongueSensors = ['nah', 'dah', 'tah', 'sha', 'cha', 'zah', 'juh'];
+let middleTongueIndex = 0;
+let middleTongueSounds = [];
+
+//TONGUE SENSOR 7 = PRESSING BACK OF TONGUE = CONSONANTS
+let backTongueSensors = ['kah', 'gah', 'eng'];
+let backTongueIndex = 0;
+let backTongueSounds = [];
 
 //VARIABLES FOR BUILDING WORDS
 let currentSyllable = "uhh";
 let word = [];
-let syllableArray;
+//let syllableArray;
+//Aarons code
+let currentKey = null;
 
 
 //VARIABLES FOR RECEIVING SERIAL
@@ -72,21 +89,44 @@ var arduinoToCodes = {
   //Order: mouthpressed, mouthclosed/mouthhalfway/mouthopen, teethpressed, tiptongue, middletongue, backtongue
   //No sounds
   //No user inputs at all
-  '0,0,0,0,0,0': 192,
+  '0,0,0,0,0,0,0,0,0': 192,
   //Sounds
-  //Start of mouth
-  '1,0,0,0,0,0': 49,
+  //Front of mouth
+  '1,0,0,0,0,0,0,0,0': 49,
+  '1,0,0,1,0,0,0,0,0': 49,
   //Middle of mouth
-  '0,1,0,0,0,0': 50,
+  '0,1,0,0,0,0,0,0,0': 50,
+  '0,1,0,1,0,0,0,0,0': 50,
+
   //Back of mouth
-  '0,0,1,0,0,0': 51,
+  '0,0,1,0,0,0,0,0,0': 51,
+  '0,0,1,1,0,0,0,0,0': 51,
+
+  //Top of teeth
+  '0,0,0,1,0,0,0,0,0': 52,
+  //Bottom of teeth
+  '0,0,0,0,1,0,0,0,0': 53,
+  '0,0,0,1,1,0,0,0,0': 53,
+
+  //Tip of tongue
+  '0,0,0,0,0,1,0,0,0': 54,
+  '0,0,0,0,0,1,1,0,0': 54,
+  '0,0,0,1,0,1,0,0,0': 54,
+
+
+  //Middle of tongue
+  '0,0,0,0,0,0,1,0,0': 55,
+  '0,0,0,1,0,0,1,0,0': 55,
+
+  //Back of tongue
+  '0,0,0,0,0,0,0,1,0': 56,
+  '0,0,0,1,0,0,0,1,0': 56,
+
   //Mouth closed
-  '0,0,0,1,0,0': 52,
-  '1,0,0,1,0,0': 52,
-  //Teeth
-  '0,0,0,0,1,0': 53,
-  //Tongue
-  '0,0,0,0,0,1': 54,
+  '0,0,0,0,0,0,0,0,1': 57,
+  '1,0,0,0,0,0,0,0,1': 57,
+  '0,0,0,1,0,0,0,0,1': 57,
+
 }
 
 var previousData;
@@ -110,21 +150,24 @@ function preload() {
   for (let k = 0; k < mouthThreeSensors.length; k++) {
     mouthThreeSounds.push(loadSound("soundfiles/" + mouthThreeSensors[k] + ".mp3"));
   }
-  for (let m = 0; m < mouthClosedSensors.length; m++) {
-    mouthClosedSounds.push(loadSound("soundfiles/" + mouthClosedSensors[m] + ".mp3"));
+  for (let m = 0; m < teethOneSensors.length; m++) {
+    teethOneSounds.push(loadSound("soundfiles/" + teethOneSensors[m] + ".mp3"));
   }
-  for (let n = 0; n < teethSensors.length; n++) {
-    teethSounds.push(loadSound("soundfiles/" + teethSensors[n] + ".mp3"));
+  for (let o = 0; o < teethTwoSensors.length; o++) {
+    teethTwoSounds.push(loadSound("soundfiles/" + teethTwoSensors[o] + ".mp3"));
   }
-  for (let o = 0; o < tipTongueSensors.length; o++) {
-    tipTongueSounds.push(loadSound("soundfiles/" + tipTongueSensors[o] + ".mp3"));
+  for (let p = 0; p < tipTongueSensors.length; p++) {
+    tipTongueSounds.push(loadSound("soundfiles/" + tipTongueSensors[p] + ".mp3"));
   }
-  // for (let o = 0; o < middleTongueSensors.length; o++) {
-  //   middleTongueSounds.push(loadSound("soundfiles/" + middleTongueSensors[o] + ".mp3"));
-  // }
-  // for (let p = 0; p < backTongueSensors.length; p++) {
-  //   backTongueSounds.push(loadSound("soundfiles/" + backTongueSensors[p] + ".mp3"));
-  // }
+  for (let q = 0; q < middleTongueSensors.length; q++) {
+    middleTongueSounds.push(loadSound("soundfiles/" + middleTongueSensors[q] + ".mp3"));
+  }
+  for (let r = 0; r < backTongueSensors.length; r++) {
+    backTongueSounds.push(loadSound("soundfiles/" + backTongueSensors[r] + ".mp3"));
+  }
+  for (let s = 0; s < mouthClosedSensors.length; s++) {
+    mouthClosedSounds.push(loadSound("soundfiles/" + mouthClosedSensors[s] + ".mp3"));
+  }
 }
 
 //SET UP
@@ -133,55 +176,66 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   background(felt);
   smooth(); // antialias drawing lines
+  textFont("PT Mono");
+
+
+
 
 
   //ADD A PHONEME
-  let addSoundButton = createButton('Add');
+  let addSoundButton = createButton('Add to Word');
   addSoundButton.mousePressed(addSoundFunction);
-  addSoundButton.position(width / 3 + 120, height / 3 + 100);
+  addSoundButton.position(width / 3 + 70, height / 3 + 50);
   addSoundButton.style('font-size', '30px');
-  addSoundButton.size(125, 50);
+  addSoundButton.size(190, 70);
 
   //DELETE A PHONEME
-  let deleteSoundButton = createButton('Delete');
+  let deleteSoundButton = createButton('Start Over');
   deleteSoundButton.mousePressed(deleteSoundFunction);
-  deleteSoundButton.position(width / 3 + 260, height / 3 + 100);
+  deleteSoundButton.position(width / 3 + 280, height / 3 + 50);
   deleteSoundButton.style('font-size', '30px');
-  deleteSoundButton.size(125, 50);
+  deleteSoundButton.size(170, 70);
+
+  //INPUT FIELD FOR USER DEFINITION
+  definitionBox = createInput();
+  textSize(30);
+  definitionBox.style('font-size', '30px');
+  definitionBox.position(width / 2, height / 3 + 280);
+  definitionBox.size(500,  30);
 
   //INPUT FIELD FOR USER SPELLING
   spellingBox = createInput();
   textSize(30);
   spellingBox.style('font-size', '30px');
-  spellingBox.position(width / 2, height / 3 + 275);
-  spellingBox.size(300, 30);
+  spellingBox.position(width / 2, height / 3 + 240);
+  spellingBox.size(500,  30);
 
   //RECORD BUTTON
   let recordButton = createButton('Record');
   recordButton.mousePressed(recordFunction);
-  recordButton.position(width / 2, height / 3 + 350);
-  recordButton.style('font-size', '20px');
-  recordButton.size(100, 50);
+  recordButton.position(width / 2, height / 3 + 320);
+  recordButton.style('font-size', '30px');
+  recordButton.size(150, 40);
 
   //STOP RECORDING BUTTON
   let stopRecordButton = createButton('Stop');
   stopRecordButton.mousePressed(stopRecordFunction);
-  stopRecordButton.position(width / 2 + 125, height / 3 + 350);
-  stopRecordButton.style('font-size', '20px');
-  stopRecordButton.size(100, 50);
+  stopRecordButton.position(width / 2 + 200, height / 3 + 320);
+  stopRecordButton.style('font-size', '30px');
+  stopRecordButton.size(150, 40);
 
   //INPUT FIELD FOR USER NAME
   nameBox = createInput();
   nameBox.style('font-size', '30px');
-  nameBox.position(width / 2, height / 3 + 425);
-  nameBox.size(300, 30);
+  nameBox.position(width / 2, height / 3 + 365);
+  nameBox.size(500, 40);
 
   //BUTTON FOR SAVING WORD
-  let saveButton = createButton('Save Word');
+  let saveButton = createButton('Save Your Word');
   saveButton.mousePressed(saveFunction);
-  saveButton.position(width / 3 + 175, height / 3 + 475);
-  saveButton.style('font-size', '30px', 'color', '#ff0000')
-  saveButton.size(200, 60);
+  saveButton.position(width / 2 - 100, height / 3 + 420);
+  saveButton.style('font-size', '35px', 'color', '#ff0000')
+  saveButton.size(300, 70);
 
 
   //SET UP SERIAL PORT
@@ -248,11 +302,12 @@ function serialEvent() {
   console.log(data);
   if (data.length > 0) {
     var states = data.split(',');
-    var sum = int(states[0]) + int(states[1]) + int(states[2]) + int(states[3]) + int(states[4]) + int(states[5] + int(states[6]));
+    var sum = int(states[0]) + int(states[1]) + int(states[2]) + int(states[3]) + int(states[4]) + int(states[5]) + int(states[6]) + int(states[7]) + int(states[8]);
     if (sum == 0) {
       previousSum = 0;
       previousData = data;
-    } else if (data != previousData && sum > previousSum && sum < 6) {
+      //SHOULD THIS BE 8 OR 9?
+    } else if (data != previousData && sum > previousSum && sum < 9) {
       clearTimeout(scheduled);
       previousData = data;
       previousSum = sum;
@@ -273,34 +328,59 @@ function draw() {
   background(felt);
   textSize(200);
   fill(0);
-  text(currentSyllable, width / 3 + 75, 275);
-  // line(1000, 635, 1500, 635);
+  text(currentSyllable, width / 3 + 75, height / 3);
+
+  //LIST OF KEYBOARD COMMANDS
+  textSize(20);
+  text("Play Online with Keyboard Commands:", 10, 20);
+  text("Vowels", 10, 60);
+  text("Key 1: Front of mouth", 10, 80);
+  text("Key 2: Middle of mouth", 10, 100);
+  text("Key 3: Back of mouth", 10, 120);
+  text("Consonants", 10, 160);
+  text("Key 4 or 5: Teeth", 10, 180);
+  text("Key 6: Tip of Tongue", 10, 200);
+  text("Key 7: Middle of Tongue", 10, 220);
+  text("Key 8: Back of Tongue", 10, 240);
+  text("Key 9: Closed lips", 10, 260);
+
+
+
+
+
+
 
   //SET UP TEXT, BUTTONS, INPUTS ON SCREEN
   //TITLE
   fill(0);
   textAlign(width / 2, height / 2);
-  textSize(50);
-  text('Build an Original Word', width / 3, 60);
+  textSize(60);
+  text('Invent an Original Word', width / 3 - 125, 75);
+
 
   //CURRENT PHONEME
   //Found in draw()
 
   //PRINT OUT CURRENT WORD
-  textSize(50);
-  text('Current Word:', width / 3 - 200, height / 3 + 225);
-  text(word, width / 3 + 250, height / 3 + 225);
+  textSize(74);
+  text('Current Word:', width / 3 - 350, height / 3 + 200);
+  text(word, width / 3 + 300, height / 3 + 240);
+  strokeWeight(10);
+  line(width / 3 + 300, height / 4 * 2.4, 1400, height / 4 * 2.4);
 
   fill(0);
   textSize(30);
-  text('My spelling:', spellingBox.x - 200, spellingBox.y + spellingBox.height - 8);
+  text('Define your word:', definitionBox.x - 335, definitionBox.y + definitionBox.height - 8);
+  definition = definitionBox.value();
+
+  text('Spell your word:', spellingBox.x - 335, spellingBox.y + spellingBox.height - 8);
   spelling = spellingBox.value();
 
-  text('My pronunciation:', width / 2 - 275, height / 3 + 375);
+  text('Record your word:', width / 2 - 335, height / 3 + 350);
 
   fill(0);
   textSize(30);
-  text('My name:', nameBox.x - 175, nameBox.y + nameBox.height - 8);
+  text('Your name:', nameBox.x - 335, nameBox.y + nameBox.height - 20);
   name = nameBox.value();
 
 }
@@ -361,15 +441,27 @@ function mouthClosedFunction() {
   }
 }
 
-function teethFunction() {
-  print("Teeth Pinched!");
-  let sound = teethSensors[teethIndex];
-  teethSounds[teethIndex].play();
+function teethOneFunction() {
+  print("Top of Teeth Pinched!");
+  let sound = teethOneSensors[teethOneIndex];
+  teethOneSounds[teethOneIndex].play();
   currentSyllable = sound;
   print(sound);
-  teethIndex++;
-  if (teethIndex > teethSensors.length - 1) {
-    teethIndex = 0;
+  teethOneIndex++;
+  if (teethOneIndex > teethOneSensors.length - 1) {
+    teethOneIndex = 0;
+  }
+}
+
+function teethTwoFunction() {
+  print("Bottom of Teeth Pinched!");
+  let sound = teethTwoSensors[teethTwoIndex];
+  teethTwoSounds[teethTwoIndex].play();
+  currentSyllable = sound;
+  print(sound);
+  teethTwoIndex++;
+  if (teethTwoIndex > teethTwoSensors.length - 1) {
+    teethTwoIndex = 0;
   }
 }
 
@@ -385,6 +477,30 @@ function tipTongueFunction() {
   }
 }
 
+function middleTongueFunction() {
+  print("Middle of tongue pressed!");
+  let sound = middleTongueSensors[middleTongueIndex];
+  middleTongueSounds[middleTongueIndex].play();
+  currentSyllable = sound;
+  print(sound);
+  middleTongueIndex++;
+  if (middleTongueIndex > middleTongueSensors.length - 1) {
+    middleTongueIndex = 0;
+  }
+}
+
+function backTongueFunction() {
+  print("Back of tongue pressed!");
+  let sound = backTongueSensors[backTongueIndex];
+  backTongueSounds[backTongueIndex].play();
+  currentSyllable = sound;
+  print(sound);
+  backTongueIndex++;
+  if (backTongueIndex > backTongueSensors.length - 1) {
+    backTongueIndex = 0;
+  }
+}
+
 
 //VARIABLES FOR ASSIGNING SERIAL DATA TO KEY BUTTONS
 //GETS MAPPED DATA OF WHICH SENSOR COMBINATIONS EQUAL WHICH CODES BELOW,
@@ -395,7 +511,6 @@ function playCode(code) {
 
   //NO SOUNDS
   if (code === 192) {
-    //Key C
     noSoundsFunction();
   }
   //SOUNDS
@@ -409,23 +524,25 @@ function playCode(code) {
     mouthThreeFunction();
   }
   if (code === 52) {
-    mouthClosedFunction();
+    teethOneFunction();
   }
   if (code === 53) {
-    teethFunction();
-    console.log("HELLLO ARE YOU THERE");
+    teethTwoFunction();
   }
   if (code === 54) {
     tipTongueFunction();
   }
-  // if (code === 72) {
-  //   //Key g;
-  //   middleTongueFunction();
-  // }
-  // if (code === 74) {
-  //   //Key h;
-  //   backTongueFunction();
-  // }
+  if (code === 55) {
+    //Key g;
+    middleTongueFunction();
+  }
+  if (code === 56) {
+    //Key h;
+    backTongueFunction();
+  }
+  if (code === 57) {
+    mouthClosedFunction();
+  }
 }
 
 
@@ -441,7 +558,6 @@ function keyPressed() {
     //Key C
     noSoundsFunction();
   }
-
   if (currentKey === 49) {
     //Key 1;
     mouthOneFunction();
@@ -455,27 +571,29 @@ function keyPressed() {
     mouthThreeFunction();
   }
   if (currentKey === 52) {
-    //Key 4;
-    mouthClosedFunction();
+    //Key 5;
+    teethOneFunction();
   }
   if (currentKey === 53) {
     //Key 5;
-    teethFunction();
+    teethTwoFunction();
   }
   if (currentKey === 54) {
     //Key 6;
     tipTongueFunction();
   }
-
-
-  // if (currentKey === 55) {
-  //   //Key 6;
-  //   middleTongueFunction();
-  // }
-  // if (currentKey === 56) {
-  //   //Key 7;
-  //   backTongueFunction();
-  // }
+  if (currentKey === 55) {
+    //Key 6;
+    middleTongueFunction();
+  }
+  if (currentKey === 56) {
+    //Key 7;
+    backTongueFunction();
+  }
+  if (currentKey === 57) {
+    //Key 4;
+    mouthClosedFunction();
+  }
 }
 
 
@@ -487,7 +605,7 @@ function addSoundFunction() {
 
 function deleteSoundFunction() {
   console.log("haii");
-  word -= currentSyllable;
+  word = "";
 }
 
 function recordFunction() {
@@ -510,5 +628,7 @@ function nameFunction() {
 
 function saveFunction() {
   newWord.play(); // play the result!
-  save(newWord, spelling + 'by' + name + '.wav'); // save the result
+  save(newWord, spelling + 'means' + definition + 'by' + name + '.wav'); // save the result
 }
+
+//FUNCTION FOR PLAYING BACK WORDS ALREADY MADE
