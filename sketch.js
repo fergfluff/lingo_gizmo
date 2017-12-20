@@ -364,9 +364,9 @@ function draw() {
   //PRINT OUT CURRENT WORD
   textSize(74);
   text('Current Word:', width / 3 - 350, height / 3 + 200);
-  text(word, width / 3 + 300, height / 3 + 190);
+  text(word, width / 3 + 300, height / 3 + 175);
   strokeWeight(10);
-  line(width / 3 + 300, height / 4 * 2.4, 1400, height / 4 * 2.4);
+  line(width / 3 + 300, height / 4 * 2.3, 1400, height / 4 * 2.3);
 
   fill(0);
   textSize(30);
